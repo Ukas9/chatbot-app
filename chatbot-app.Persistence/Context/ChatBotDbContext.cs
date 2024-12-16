@@ -1,9 +1,9 @@
 ﻿using chatbot_app.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace chatbot_app.Persistence.Persistence;
+namespace chatbot_app.Persistence.Context;
 
-public class ChatBotDbContext() : DbContext
+public class ChatBotDbContext(DbContextOptions<ChatBotDbContext> options) : DbContext(options)
 {
     public DbSet<User> Users { get; set; }
     

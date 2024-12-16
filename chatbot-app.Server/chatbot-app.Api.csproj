@@ -31,7 +31,6 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\chatbot-app.Domain\chatbot-app.Domain.csproj" />
-    <ProjectReference Include="..\chatbot-app.Persistence\chatbot-app.Persistence.csproj" />
   </ItemGroup>
 
 </Project>
