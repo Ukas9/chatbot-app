@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { MessageDto } from '../models/message.dto';
 import { SendMessageCommand } from '../models/send-message.command';
+import { RateMessageCommand } from '../models/rate-message.command';
 
 @Injectable({
   providedIn: 'root'
@@ -20,5 +21,9 @@ export class MessagesService {
 
   public sendMessage(data: SendMessageCommand): Observable<MessageDto>{
     return this.httpClient.post<MessageDto>(this.baseApiUrl, data);
+  }
+
+  public rateMessage(data: RateMessageCommand):Observable<void>{
+    return this.httpClient.post<void>(`${this.baseApiUrl}/rateMessage`, data);
   }
 }

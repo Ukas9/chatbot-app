@@ -22,7 +22,6 @@ export class UsersComponent {
   }
 
   public onUserClick(event: UserDto) {
-    console.log(event);
     return this.router.navigate(['user', event.id]);
   }
 
@@ -32,6 +31,6 @@ export class UsersComponent {
         take(1),
         finalize(() => this.refresh$.next(undefined)),
       )
-      .subscribe(console.log);
+      .subscribe();
   }
 }

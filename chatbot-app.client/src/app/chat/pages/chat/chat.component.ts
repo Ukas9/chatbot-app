@@ -7,6 +7,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MessageDto } from '../../common/models/message.dto';
 import { MessageTypeEnum } from '../../common/models/message-type.enum';
 import { SendMessageCommand } from '../../common/models/send-message.command';
+import { RateMessageCommand } from '../../common/models/rate-message.command';
 
 @Component({
   selector: 'app-chat',
@@ -61,7 +62,6 @@ export class ChatComponent {
         );
   }
 
-
   public sendMessage() {
 
     if (!this.chatForm.valid) {
@@ -87,6 +87,40 @@ export class ChatComponent {
 
   public getMessageClass(type: MessageTypeEnum): string {
     return MessageTypeEnum[type];
+  }
+
+  public cancelClick() {
+    console.log('cancel click');
+  }
+
+  public onLikeClick(messageId: number) {
+    const rateMsg: RateMessageCommand = {
+      messageId: messageId,
+      likeDislike: 1,
+    };
+
+    this.rateMessage(rateMsg);
+
+  }
+
+  public onDislikeClick(messageId: number) {
+    const rateMsg: RateMessageCommand = {
+      messageId: messageId,
+      likeDislike: -1,
+    };
+    this.rateMessage(rateMsg);
+  }
+
+  private rateMessage(data: RateMessageCommand) {
+    this.messagesService.rateMessage(data)
+      .pipe(take(1),
+        finalize(() => {
+          this.refresh$.next();
+        }),
+      )
+      .subscribe({
+        error: (err) => console.error('Failed to rate message:', err),
+      });
   }
 }
 

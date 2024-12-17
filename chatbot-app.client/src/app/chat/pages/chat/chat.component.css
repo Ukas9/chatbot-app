@@ -50,3 +50,8 @@ mat-card.Chat {
 button {
   min-width: 80px;
 }
+
+.selected {
+  background-color: rgba(0, 123, 255, 0.2);
+  border: 2px solid #007bff;
+}
