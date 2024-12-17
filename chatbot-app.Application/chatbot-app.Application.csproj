@@ -18,6 +18,7 @@
 
     <ItemGroup>
       <Folder Include="Conversations\Dtos\" />
+      <Folder Include="Messages\Queries\" />
     </ItemGroup>
 
 </Project>

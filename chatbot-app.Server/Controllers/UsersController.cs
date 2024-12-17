@@ -18,20 +18,20 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<int> CreateUser([FromBody] CreateUserCommand command)
+    public async Task<int> CreateUser([FromBody] CreateUserCommand command, CancellationToken cancellationToken)
     {
-        return await _mediator.Send(command);
+        return await _mediator.Send(command, cancellationToken);
     }
 
     [HttpGet("{username}")]
-    public async Task<UserDto> GetUserByUsername(string username)
+    public async Task<UserDto> GetUserByUsername(string username, CancellationToken cancellationToken)
     {
-        return await _mediator.Send(new GetUserByUsernameQuery(username));
+        return await _mediator.Send(new GetUserByUsernameQuery(username), cancellationToken);
     }
         
     [HttpGet]
-    public async Task<List<UserDto>> GetAllUsers()
+    public async Task<List<UserDto>> GetAllUsers( CancellationToken cancellationToken)
     {
-        return await _mediator.Send(new GetAllUsersQuery());
+        return await _mediator.Send(new GetAllUsersQuery(), cancellationToken);
     }
 }

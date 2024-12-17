@@ -12,8 +12,8 @@ public class CreateConversationCommandHandler(ChatBotDbContext context)
         var newConversation = new Conversation
         {
             UserId = request.UserId,
-            CreatedAt = DateTimeOffset.Now,
-            UpdatedAt = DateTimeOffset.Now
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
         };
 
         context.Conversations.Add(newConversation);

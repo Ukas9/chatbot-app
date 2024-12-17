@@ -17,14 +17,15 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<int> CreateConversation([FromBody] CreateConversationCommand command)
+    public async Task<int> CreateConversation([FromBody] CreateConversationCommand command,
+        CancellationToken cancellationToken)
     {
-        return await _mediator.Send(command);
+        return await _mediator.Send(command, cancellationToken);
     }
 
     [HttpGet("{userId}")]
-    public async Task<int?> GetLastConversationForUser(int userId)
+    public async Task<int?> GetLastConversationForUser(int userId, CancellationToken cancellationToken)
     {
-        return await _mediator.Send(new GetLastConversationQuery(userId));
+        return await _mediator.Send(new GetLastConversationQuery(userId), cancellationToken);
     }
 }
