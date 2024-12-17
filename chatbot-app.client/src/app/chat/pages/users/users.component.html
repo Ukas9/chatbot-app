@@ -1,0 +1,11 @@
+Lista użytkowników:
+<mat-list>
+  @for (user of users$ | async; track user) {
+    <mat-list-item (click)="onUserClick(user)">
+    {{ user.username }}
+    </mat-list-item>
+  }
+</mat-list>
+
+<mat-divider></mat-divider>
+<app-user-add (userAdd)="onUserAdd($event)"></app-user-add>
