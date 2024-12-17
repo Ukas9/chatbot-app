@@ -5,7 +5,7 @@ import {UsersComponent} from "./chat/pages/users/users.component";
 const routes: Routes = [
   {
     path: '',
-    component: UsersComponent
+    loadChildren:() => import('./chat/chat.module').then(m => m.ChatModule),
   }
 ];
 

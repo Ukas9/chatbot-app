@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { UsersService } from '../../common/services/users.service';
 import { BehaviorSubject, finalize, Observable, switchMap, take } from 'rxjs';
 import { UserDto } from '../../common/models/user.dto';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-users',
@@ -13,7 +14,7 @@ export class UsersComponent {
 
   private refresh$: BehaviorSubject<void> = new BehaviorSubject<void>(undefined);
 
-  constructor(private readonly usersService: UsersService) {
+  constructor(private readonly usersService: UsersService, private readonly router: Router) {
     this.users$ =
       this.refresh$.pipe(
         switchMap(() => this.usersService.getUsers(),
@@ -22,6 +23,7 @@ export class UsersComponent {
 
   public onUserClick(event: UserDto) {
     console.log(event);
+    return this.router.navigate(['user', event.id]);
   }
 
   public onUserAdd(username: string) {
@@ -31,6 +33,5 @@ export class UsersComponent {
         finalize(() => this.refresh$.next(undefined)),
       )
       .subscribe(console.log);
-    console.log(username);
   }
 }
