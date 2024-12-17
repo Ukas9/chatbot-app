@@ -1,1 +1,11 @@
-<p>chat works!</p>
+<div class="chat-container">
+  <div class="messages">
+    @for (message of messages$|async; track message) {
+      <mat-card [ngClass]="getMessageClass(message.type)">
+        <mat-card-content>{{ message.content }}</mat-card-content>
+      </mat-card>
+    }
+  </div>
+
+
+</div>

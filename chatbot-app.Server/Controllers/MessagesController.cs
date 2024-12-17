@@ -24,7 +24,7 @@ namespace chatbot_app.Server.Controllers
             await mediator.Send(message, cancellationToken);
         }
 
-        [HttpGet("{conversationId}")]
+        [HttpGet("conversation/{conversationId}")]
         public async Task<List<MessageDto>> GetAllMessages(int conversationId, CancellationToken cancellationToken)
         {
             return await mediator.Send(new GetAllUserMessagesCommand(conversationId), cancellationToken);

@@ -11,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ChatComponent } from './pages/chat/chat.component';
+import { MatCardModule } from '@angular/material/card';
 
 
 @NgModule({
@@ -27,7 +28,8 @@ import { ChatComponent } from './pages/chat/chat.component';
     ReactiveFormsModule,
     MatInputModule,
     MatButtonModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatCardModule
   ],
 })
 export class ChatModule { }
