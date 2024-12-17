@@ -16,4 +16,8 @@
       <ProjectReference Include="..\chatbot-app.Persistence\chatbot-app.Persistence.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Conversations\Dtos\" />
+    </ItemGroup>
+
 </Project>
