@@ -1,5 +1,6 @@
 ﻿using chatbot_app.Application.Messages.Commands;
 using chatbot_app.Application.Messages.Dtos;
+using chatbot_app.Application.Messages.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +22,12 @@ namespace chatbot_app.Server.Controllers
             CancellationToken cancellationToken)
         {
             await mediator.Send(message, cancellationToken);
+        }
+
+        [HttpGet("{conversationId}")]
+        public async Task<List<MessageDto>> GetAllMessages(int conversationId, CancellationToken cancellationToken)
+        {
+            return await mediator.Send(new GetAllUserMessagesCommand(conversationId), cancellationToken);
         }
     }
 }

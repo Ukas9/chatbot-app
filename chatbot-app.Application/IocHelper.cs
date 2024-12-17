@@ -2,6 +2,7 @@
 using chatbot_app.Application.Conversations.Queries;
 using chatbot_app.Application.Messages.Commands;
 using chatbot_app.Application.Messages.Dtos;
+using chatbot_app.Application.Messages.Queries;
 using chatbot_app.Application.Users.Commands;
 using chatbot_app.Application.Users.Dtos;
 using chatbot_app.Application.Users.Queries;
@@ -21,5 +22,6 @@ public static class IocHelper
         services.AddScoped<IRequestHandler<GetLastConversationQuery, int?>, GetLastConversationQueryHandler>();
         services.AddScoped<IRequestHandler<SendMessageCommand, MessageDto>, SendMessageCommandHandler>();
         services.AddScoped<IRequestHandler<RateMessageCommand>, RateMessageCommandHandler>();
+        services.AddScoped<IRequestHandler<GetAllUserMessagesCommand, List<MessageDto>>, GetAllUserMessagesHandler>();
     }
 }
