@@ -1,3 +1,14 @@
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 600px;
+  margin: 0 auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
 .messages {
   flex: 1;
   overflow-y: auto;
@@ -22,4 +33,20 @@ mat-card.User {
 mat-card.Chat {
   align-self: flex-start;
   background-color: #e8eaf6;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-top: 1px solid #ccc;
+}
+
+.input-field {
+  flex: 1;
+  margin-right: 10px;
+}
+
+button {
+  min-width: 80px;
 }

@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, of, switchMap, take, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, finalize, Observable, of, switchMap, take, tap } from 'rxjs';
 import { ConversationsService } from '../../common/services/conversations.service';
 import { MessagesService } from '../../common/services/messages.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MessageDto } from '../../common/models/message.dto';
 import { MessageTypeEnum } from '../../common/models/message-type.enum';
+import { SendMessageCommand } from '../../common/models/send-message.command';
 
 @Component({
   selector: 'app-chat',
@@ -13,43 +14,75 @@ import { MessageTypeEnum } from '../../common/models/message-type.enum';
   styleUrl: './chat.component.css',
 })
 export class ChatComponent {
+  public chatForm: FormGroup;
   public messages$: Observable<MessageDto[]>;
   private userId: number | undefined;
   private conversationId: number | undefined;
 
-  constructor(private readonly activatedRoute: ActivatedRoute,
+  private refresh$: BehaviorSubject<void> = new BehaviorSubject<void>(undefined);
+
+  constructor(activatedRoute: ActivatedRoute,
               private readonly conversationsService: ConversationsService,
               private readonly messagesService: MessagesService) {
+    this.chatForm = new FormGroup({
+      message: new FormControl('', [Validators.required]),
+    });
+
+    this.messages$ =
+      combineLatest([
+        activatedRoute.params, this.refresh$,
+      ])
+        .pipe(
+          switchMap(([data]) => {
+            if (data['id']) {
+              this.userId = +data['id'];
+              return this.conversationsService.getLastConversation(this.userId);
+            }
+            return of(null);
+          }),
+          switchMap(data => {
+            if (data === null) {
+              return of(0);
+            }
+
+            if (data === 0) {
+              return this.conversationsService.createConversation(this.userId!);
+            }
+
+            return of(data);
+          }),
+          tap(conversationId =>
+            this.conversationId = conversationId,
+          ),
+          switchMap((conversationId) => {
+
+            return this.messagesService.getAllMessages(conversationId);
+          }),
+        );
+  }
 
 
-    this.messages$ = activatedRoute.params
+  public sendMessage() {
+
+    if (!this.chatForm.valid) {
+      return;
+    }
+    const sendMessageCommand: SendMessageCommand = {
+      message: this.chatForm.value.message,
+      conversationId: this.conversationId!,
+      userId: this.userId!,
+    };
+
+    this.messagesService.sendMessage(sendMessageCommand)
       .pipe(take(1),
-        switchMap((data) => {
-          if (data['id']) {
-            this.userId = +data['id'];
-            return this.conversationsService.getLastConversation(this.userId);
-          }
-          return of(null);
+        finalize(() => {
+          this.refresh$.next();
+          this.chatForm.reset();
         }),
-        switchMap(data => {
-          if (data === null) {
-            return of(0);
-          }
-
-          if (data === 0) {
-            return this.conversationsService.createConversation(this.userId!);
-          }
-
-          return of(data);
-        }),
-        tap(conversationId =>
-          this.conversationId = conversationId,
-        ),
-        switchMap((conversationId) => {
-
-          return this.messagesService.getAllMessages(conversationId);
-        }),
-      );
+      )
+      .subscribe({
+        error: (err) => console.error('Failed to send message:', err),
+      });
   }
 
   public getMessageClass(type: MessageTypeEnum): string {

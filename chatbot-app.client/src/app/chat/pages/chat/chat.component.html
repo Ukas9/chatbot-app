@@ -7,5 +7,16 @@
     }
   </div>
 
-
+  <form [formGroup]="chatForm" (ngSubmit)="sendMessage()" class="input-container">
+    <mat-form-field appearance="fill" class="input-field">
+      <mat-label>Wyślij wiadomość...</mat-label>
+      <input matInput formControlName="message" />
+      <mat-error *ngIf="chatForm.get('message')?.hasError('required')">
+        Wiadomość nie może być pusta
+      </mat-error>
+    </mat-form-field>
+    <button mat-raised-button color="primary" type="submit" [disabled]="chatForm.invalid">
+      Wyślij
+    </button>
+  </form>
 </div>
