@@ -20,6 +20,6 @@ public static class IocHelper
         services.AddScoped<IRequestHandler<CreateConversationCommand, int>, CreateConversationCommandHandler>();
         services.AddScoped<IRequestHandler<GetLastConversationQuery, int?>, GetLastConversationQueryHandler>();
         services.AddScoped<IRequestHandler<SendMessageCommand, MessageDto>, SendMessageCommandHandler>();
-        // services.AddScoped<IRequestHandler<GetLastConversationQuery, int?>, GetLastConversationQueryHandler>();
+        services.AddScoped<IRequestHandler<RateMessageCommand>, RateMessageCommandHandler>();
     }
 }

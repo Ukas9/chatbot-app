@@ -2,4 +2,4 @@
 
 namespace chatbot_app.Application.Messages.Dtos;
 
-public record MessageDto(int Id, string Content, MessageType Type, DateTimeOffset CreatedAt);
+public record MessageDto(int Id, string Content, MessageType Type, DateTimeOffset CreatedAt, int? LikeDislike = null);

@@ -19,8 +19,6 @@ public class SendMessageCommandHandler(ChatBotDbContext context)
             throw new InvalidOperationException("User not found.");
         }
 
-        var d = context.Conversations.ToList();
-
         var conversation =
             await context.Conversations.FirstOrDefaultAsync(x => x.Id == request.ConversationId, cancellationToken);
 

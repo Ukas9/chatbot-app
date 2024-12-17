@@ -7,19 +7,20 @@ namespace chatbot_app.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MessagesController : ControllerBase
+    public class MessagesController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public MessagesController(IMediator mediator)
+        [HttpPost]
+        public async Task<MessageDto> SendMessage([FromBody] SendMessageCommand message,
+            CancellationToken cancellationToken)
         {
-            _mediator = mediator; 
+            return await mediator.Send(message, cancellationToken);
         }
 
-        [HttpPost]
-        public async Task<MessageDto> SendMessage([FromBody] SendMessageCommand message, CancellationToken cancellationToken)
+        [HttpPost("rateMessage")]
+        public async Task RateMessage([FromBody] RateMessageCommand message,
+            CancellationToken cancellationToken)
         {
-            return await _mediator.Send(message, cancellationToken);
+            await mediator.Send(message, cancellationToken);
         }
     }
 }
