@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, finalize, Observable, of, switchMap, take, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, finalize, interval, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { ConversationsService } from '../../common/services/conversations.service';
 import { MessagesService } from '../../common/services/messages.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -15,12 +15,15 @@ import { RateMessageCommand } from '../../common/models/rate-message.command';
   styleUrl: './chat.component.css',
 })
 export class ChatComponent {
+  private messagesSubject = new BehaviorSubject<MessageDto[]>([]);
   public chatForm: FormGroup;
-  public messages$: Observable<MessageDto[]>;
+  public messages$: Observable<MessageDto[]> = this.messagesSubject.asObservable();
+
   private userId: number | undefined;
   private conversationId: number | undefined;
 
   private refresh$: BehaviorSubject<void> = new BehaviorSubject<void>(undefined);
+
 
   constructor(activatedRoute: ActivatedRoute,
               private readonly conversationsService: ConversationsService,
@@ -29,37 +32,40 @@ export class ChatComponent {
       message: new FormControl('', [Validators.required]),
     });
 
-    this.messages$ =
-      combineLatest([
-        activatedRoute.params, this.refresh$,
-      ])
-        .pipe(
-          switchMap(([data]) => {
-            if (data['id']) {
-              this.userId = +data['id'];
-              return this.conversationsService.getLastConversation(this.userId);
-            }
-            return of(null);
-          }),
-          switchMap(data => {
-            if (data === null) {
-              return of(0);
-            }
+    combineLatest([
+      activatedRoute.params, this.refresh$,
+    ])
+      .pipe(
+        take(1),
+        switchMap(([data]) => {
+          if (data['id']) {
+            this.userId = +data['id'];
+            return this.conversationsService.getLastConversation(this.userId);
+          }
+          return of(null);
+        }),
+        switchMap(data => {
+          if (data === null) {
+            return of(0);
+          }
 
-            if (data === 0) {
-              return this.conversationsService.createConversation(this.userId!);
-            }
+          if (data === 0) {
+            return this.conversationsService.createConversation(this.userId!);
+          }
 
-            return of(data);
-          }),
-          tap(conversationId =>
-            this.conversationId = conversationId,
-          ),
-          switchMap((conversationId) => {
+          return of(data);
+        }),
+        tap(conversationId =>
+          this.conversationId = conversationId,
+        ),
+        switchMap((conversationId) => {
 
-            return this.messagesService.getAllMessages(conversationId);
-          }),
-        );
+          return this.messagesService.getAllMessages(conversationId);
+        }),
+        map(messages => {
+          this.updateMessages(messages);
+        }),
+      ).subscribe();
   }
 
   public sendMessage() {
@@ -72,11 +78,20 @@ export class ChatComponent {
       conversationId: this.conversationId!,
       userId: this.userId!,
     };
+    const msgDto: MessageDto = {
+      content: sendMessageCommand.message,
+      type: MessageTypeEnum.User,
+      createdAt: new Date(),
+      id: 0,
+    };
+    this.addMessage(msgDto);
 
     this.messagesService.sendMessage(sendMessageCommand)
       .pipe(take(1),
+        tap(response => {
+          this.addMessage(response);
+        }),
         finalize(() => {
-          this.refresh$.next();
           this.chatForm.reset();
         }),
       )
@@ -115,12 +130,34 @@ export class ChatComponent {
     this.messagesService.rateMessage(data)
       .pipe(take(1),
         finalize(() => {
-          this.refresh$.next();
+          const message = this.messagesSubject.value.find(x => x.id === data.messageId);
+          message!.likeDislike = data.likeDislike;
+          this.updateMessage(message!);
         }),
       )
       .subscribe({
         error: (err) => console.error('Failed to rate message:', err),
       });
+  }
+
+  private updateMessages(newMessages: MessageDto[]): void {
+    const currentMessages = this.messagesSubject.value;
+    this.messagesSubject.next([...currentMessages, ...newMessages]);
+  }
+
+  private addMessage(newMessage: MessageDto): void {
+    const currentMessages = this.messagesSubject.value;
+    this.messagesSubject.next([...currentMessages, newMessage]);
+  }
+
+  private   updateMessage(updatedMessage: MessageDto): void {
+    const currentMessages = this.messagesSubject.value;
+
+    const updatedMessages = currentMessages.map((msg) =>
+      msg.id === updatedMessage.id ? { ...msg, ...updatedMessage } : msg
+    );
+
+    this.messagesSubject.next(updatedMessages);
   }
 }
 
