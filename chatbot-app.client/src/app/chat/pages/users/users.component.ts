@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
-import { UsersService } from '../../common/services/users.service';
-import { BehaviorSubject, finalize, Observable, switchMap, take } from 'rxjs';
-import { UserDto } from '../../common/models/user.dto';
 import { Router } from '@angular/router';
+
+import { BehaviorSubject, finalize, Observable, switchMap, take } from 'rxjs';
+
+import { UsersService } from '../../common/services/users.service';
+import { UserDto } from '../../common/models/user.dto';
 
 @Component({
   selector: 'app-users',

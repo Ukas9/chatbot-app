@@ -1,8 +1,9 @@
 <div class="chat-container">
-  <div class="messages">
-    @for (message of messages$|async; track message) {
+  <div class="messages" #scrollMessages>
+    @for (message of messages$|async; track message; let idx = $index, last = $last) {
       <mat-card [ngClass]="getMessageClass(message.type)">
         <mat-card-content>{{ message.content }}</mat-card-content>
+
         @if (getMessageClass(message.type) === 'Chat') {
           <mat-card-footer class="example-card-footer">
             <mat-chip-set aria-label="Message like/dislike">

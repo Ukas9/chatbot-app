@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, finalize, interval, map, Observable, of, switchMap, take, tap } from 'rxjs';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+
+import { BehaviorSubject, finalize, map, Observable, of, switchMap, take, tap } from 'rxjs';
+
 import { ConversationsService } from '../../common/services/conversations.service';
 import { MessagesService } from '../../common/services/messages.service';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MessageDto } from '../../common/models/message.dto';
 import { MessageTypeEnum } from '../../common/models/message-type.enum';
 import { SendMessageCommand } from '../../common/models/send-message.command';
@@ -15,15 +17,13 @@ import { RateMessageCommand } from '../../common/models/rate-message.command';
   styleUrl: './chat.component.css',
 })
 export class ChatComponent {
+  @ViewChild('scrollMessages') private myScrollContainer!: ElementRef;
   private messagesSubject = new BehaviorSubject<MessageDto[]>([]);
   public chatForm: FormGroup;
   public messages$: Observable<MessageDto[]> = this.messagesSubject.asObservable();
 
   private userId: number | undefined;
   private conversationId: number | undefined;
-
-  private refresh$: BehaviorSubject<void> = new BehaviorSubject<void>(undefined);
-
 
   constructor(activatedRoute: ActivatedRoute,
               private readonly conversationsService: ConversationsService,
@@ -32,12 +32,16 @@ export class ChatComponent {
       message: new FormControl('', [Validators.required]),
     });
 
-    combineLatest([
-      activatedRoute.params, this.refresh$,
-    ])
+    this.messages$.subscribe((messages: MessageDto[]) => {
+      setTimeout(() => {
+        this.scrollToBottom();
+      }, 500);
+    });
+
+    activatedRoute.params
       .pipe(
         take(1),
-        switchMap(([data]) => {
+        switchMap((data) => {
           if (data['id']) {
             this.userId = +data['id'];
             return this.conversationsService.getLastConversation(this.userId);
@@ -93,6 +97,7 @@ export class ChatComponent {
         }),
         finalize(() => {
           this.chatForm.reset();
+          this.chatForm.controls['message'].setErrors(null);
         }),
       )
       .subscribe({
@@ -113,9 +118,7 @@ export class ChatComponent {
       messageId: messageId,
       likeDislike: 1,
     };
-
     this.rateMessage(rateMsg);
-
   }
 
   public onDislikeClick(messageId: number) {
@@ -150,14 +153,22 @@ export class ChatComponent {
     this.messagesSubject.next([...currentMessages, newMessage]);
   }
 
-  private   updateMessage(updatedMessage: MessageDto): void {
+  private updateMessage(updatedMessage: MessageDto): void {
     const currentMessages = this.messagesSubject.value;
 
     const updatedMessages = currentMessages.map((msg) =>
-      msg.id === updatedMessage.id ? { ...msg, ...updatedMessage } : msg
+      msg.id === updatedMessage.id ? { ...msg, ...updatedMessage } : msg,
     );
 
     this.messagesSubject.next(updatedMessages);
+  }
+
+  private scrollToBottom(): void {
+    try {
+      this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
+    } catch (err) {
+      console.error(err);
+    }
   }
 }
 
